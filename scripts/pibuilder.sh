@@ -1,6 +1,7 @@
 #!/bin/sh
 
 set -e
+set -x
 
 CACHE_DIR="./cache"
 RESULT_FILE="${CACHE_DIR}/result"
@@ -127,6 +128,11 @@ sed -i "s/%PI_GPU_MEMORY%/$PI_GPU_MEMORY/g" "${ROOT_DIR}/first_run.sh"
 sed -i "s/%PI_IP_ADDRESS_RANGE_START%/$PI_IP_ADDRESS_RANGE_START/g" "${ROOT_DIR}/first_run.sh"
 sed -i "s/%PI_IP_ADDRESS_RANGE_END%/$PI_IP_ADDRESS_RANGE_END/g" "${ROOT_DIR}/first_run.sh"
 sed -i "s/%PI_DNS_ADDRESS%/$PI_DNS_ADDRESS/g" "${ROOT_DIR}/first_run.sh"
+
+sed -i "s/%K3S_CLUSTER_SECRET%/$K3S_CLUSTER_SECRET/g" "${ROOT_DIR}/first_run.sh"
+sed -i 's@%K3S_URL%@'"$K3S_URL"'@g' "${ROOT_DIR}/first_run.sh"
+sed -i "s/%PI_INSTALL_K3S_SEVER%/$PI_INSTALL_K3S_SEVER/g" "${ROOT_DIR}/first_run.sh"
+sed -i "s/%PI_INSTALL_K3S_AGENT%/$PI_INSTALL_K3S_AGENT/g" "${ROOT_DIR}/first_run.sh"
 
 chmod 755 "${ROOT_DIR}/first_run.sh"
 cp "${PI_SSH_KEY}" "${ROOT_DIR}/id_rsa.pub"

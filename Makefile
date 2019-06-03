@@ -10,6 +10,17 @@ build:
 	@echo "Now write .${OUT_DIR}/cache/os.img to an SD card and put into a Pi. This will take up to 5 minutes to configure"
 .PHONY: build
 
+build-server: build
+	mv .${OUT_DIR}/cache/os.img .${OUT_DIR}/cache/k3s-server.img
+	@echo "Now write .${OUT_DIR}/cache/k3s-server.img to an SD card and put into a Pi. This will take up to 5 minutes to configure"
+.PHONY: build-server
+
+build-agent: build
+	mv .${OUT_DIR}/cache/os.img .${OUT_DIR}/cache/k3s-agent.img
+	@echo "Now write .${OUT_DIR}/cache/k3s-agent.img to an SD card and put into a Pi. This will take up to 5 minutes to configure"
+
+.PHONY: build-agent
+
 docker-build:
 	docker build -t ${DOCKER_CONTAINER} .
 .PHONY: docker-build

@@ -41,7 +41,7 @@ fi
 
 # Configure static IP address
 apt-get -qq update
-apt-get install -y python-dev python-pip
+apt-get install -y python-dev python-pip vim
 pip install netifaces
 
 export TARGET_IP="target_ip"
@@ -78,8 +78,20 @@ if test "%PI_MAILGUN_API_KEY%" && test "%PI_MAILGUN_DOMAIN%" && test "%PI_EMAIL_
     -F text="New %PI_USERNAME%@${PI_CONFIG_HOSTNAME} setup on: ${PI_IP_ADDRESS}"
 fi
 
+# Install K3S
+sed '${s/$/ cgroup_memory=1 cgroup_enable=memory/}' /boot/cmdline.txt -i
+if "%PI_INSTALL_K3S_SEVER%" -eq "true"; then
+  curl -sfL https://get.k3s.io | K3S_CLUSTER_SECRET="%K3S_CLUSTER_SECRET%" sh -
+fi
+
+if "%PI_INSTALL_K3S_AGENT%" -eq "true"; then
+  curl -sfL https://get.k3s.io | K3S_URL="%K3S_URL%" K3S_CLUSTER_SECRET="%K3S_CLUSTER_SECRET%" sh -
+fi
+
 rm -Rf ${DATA_DIR}
 
 rm -- "$0"
 
 echo "Deleted current script"
+
+shutdown -r
