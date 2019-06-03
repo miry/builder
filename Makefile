@@ -10,12 +10,16 @@ build:
 	@echo "Now write .${OUT_DIR}/cache/os.img to an SD card and put into a Pi. This will take up to 5 minutes to configure"
 .PHONY: build
 
-build-server: build
+build-server:
+	cp .${OUT_DIR}/settings-server.sh .${OUT_DIR}/settings.sh
+	make build
 	mv .${OUT_DIR}/cache/os.img .${OUT_DIR}/cache/k3s-server.img
 	@echo "Now write .${OUT_DIR}/cache/k3s-server.img to an SD card and put into a Pi. This will take up to 5 minutes to configure"
 .PHONY: build-server
 
-build-agent: build
+build-agent:
+	cp .${OUT_DIR}/settings-agent.sh .${OUT_DIR}/settings.sh
+	make build
 	mv .${OUT_DIR}/cache/os.img .${OUT_DIR}/cache/k3s-agent.img
 	@echo "Now write .${OUT_DIR}/cache/k3s-agent.img to an SD card and put into a Pi. This will take up to 5 minutes to configure"
 

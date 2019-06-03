@@ -3,6 +3,8 @@
 exec 2> /var/log/rc.local.log # send stderr from rc.local to a log file
 exec 1>&2
 
+date
+
 set -x
 set -e
 
@@ -41,7 +43,8 @@ fi
 
 # Configure static IP address
 apt-get -qq update
-apt-get install -y python-dev python-pip vim
+apt-get install -y python-dev python-pip vim ntp
+
 pip install netifaces
 
 export TARGET_IP="target_ip"
@@ -59,9 +62,6 @@ apt-get remove -y python-dev python-pip
 PI_IP_ADDRESS=$(cat ./target_ip)
 rm ./target_ip
 
-# Remove DHCPCD5 - https://www.raspberrypi.org/forums/viewtopic.php?t=111709
-apt-get remove -y dhcpcd5
-
 # Install Docker
 if "%PI_INSTALL_DOCKER%" -eq "true"; then
   curl -sSL https://get.docker.com | CHANNEL=stable sh
@@ -78,20 +78,18 @@ if test "%PI_MAILGUN_API_KEY%" && test "%PI_MAILGUN_DOMAIN%" && test "%PI_EMAIL_
     -F text="New %PI_USERNAME%@${PI_CONFIG_HOSTNAME} setup on: ${PI_IP_ADDRESS}"
 fi
 
-# Install K3S
-sed '${s/$/ cgroup_memory=1 cgroup_enable=memory/}' /boot/cmdline.txt -i
-if "%PI_INSTALL_K3S_SEVER%" -eq "true"; then
-  curl -sfL https://get.k3s.io | K3S_CLUSTER_SECRET="%K3S_CLUSTER_SECRET%" sh -
-fi
-
-if "%PI_INSTALL_K3S_AGENT%" -eq "true"; then
-  curl -sfL https://get.k3s.io | K3S_URL="%K3S_URL%" K3S_CLUSTER_SECRET="%K3S_CLUSTER_SECRET%" sh -
-fi
-
 rm -Rf ${DATA_DIR}
+
+sed '${s/$/ cgroup_memory=1 cgroup_enable=memory/}' /boot/cmdline.txt -i
+
+systemctl daemon-reload
+systemctl restart networking
 
 rm -- "$0"
 
 echo "Deleted current script"
 
-shutdown -r
+mv /k3s.sh /first_run.sh
+echo "Move k3s to first_run script"
+
+date

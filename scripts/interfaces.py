@@ -101,8 +101,6 @@ with open(os.environ.get('NETWORK_CONFIG'), 'w') as the_file:
     the_file.write('# For static IP, consult /etc/dhcpcd.conf and "man dhcpcd.conf"\n')
     the_file.write('\n')
     the_file.write('# Include files from /etc/network/interfaces.d:\n')
-    the_file.write('source-directory /etc/network/interfaces.d\n')
-    the_file.write('\n')
     the_file.write('auto lo\n')
     the_file.write('iface lo inet loopback\n')
     the_file.write('\n')

@@ -77,7 +77,9 @@ if [[ -z "${PI_USERNAME}" ]]; then
 fi
 
 # Generate the password
-PI_PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w ${PI_PASSWORD_LENGTH} | head -n 1)
+if [[ -z "${PI_PASSWORD}" ]]; then
+  PI_PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w ${PI_PASSWORD_LENGTH} | head -n 1)
+fi
 
 # Download the operating system
 download ${PI_OS}
@@ -129,10 +131,21 @@ sed -i "s/%PI_IP_ADDRESS_RANGE_START%/$PI_IP_ADDRESS_RANGE_START/g" "${ROOT_DIR}
 sed -i "s/%PI_IP_ADDRESS_RANGE_END%/$PI_IP_ADDRESS_RANGE_END/g" "${ROOT_DIR}/first_run.sh"
 sed -i "s/%PI_DNS_ADDRESS%/$PI_DNS_ADDRESS/g" "${ROOT_DIR}/first_run.sh"
 
-sed -i "s/%K3S_CLUSTER_SECRET%/$K3S_CLUSTER_SECRET/g" "${ROOT_DIR}/first_run.sh"
-sed -i 's@%K3S_URL%@'"$K3S_URL"'@g' "${ROOT_DIR}/first_run.sh"
-sed -i "s/%PI_INSTALL_K3S_SEVER%/$PI_INSTALL_K3S_SEVER/g" "${ROOT_DIR}/first_run.sh"
-sed -i "s/%PI_INSTALL_K3S_AGENT%/$PI_INSTALL_K3S_AGENT/g" "${ROOT_DIR}/first_run.sh"
+if "${PI_INSTALL_K3S_SEVER}" -eq "true"; then
+  cp ./scripts/k3s_server.sh "${ROOT_DIR}/k3s.sh"
+fi
+
+if "${PI_INSTALL_K3S_AGENT}" -eq "true"; then
+  cp ./scripts/k3s_agent.sh "${ROOT_DIR}/k3s.sh"
+fi
+
+sed -i "s/%K3S_CLUSTER_SECRET%/$K3S_CLUSTER_SECRET/g" "${ROOT_DIR}/k3s.sh"
+sed -i 's@%K3S_URL%@'"$K3S_URL"'@g' "${ROOT_DIR}/k3s.sh"
+
+echo "Compiled user data:"
+echo "----"
+cat "${ROOT_DIR}/first_run.sh"
+echo "----"
 
 chmod 755 "${ROOT_DIR}/first_run.sh"
 cp "${PI_SSH_KEY}" "${ROOT_DIR}/id_rsa.pub"
