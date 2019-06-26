@@ -81,9 +81,7 @@ fi
 rm -Rf ${DATA_DIR}
 
 sed '${s/$/ cgroup_memory=1 cgroup_enable=memory/}' /boot/cmdline.txt -i
-
-systemctl daemon-reload
-systemctl restart networking
+echo "dtoverlay=pi3-disable-wifi" >> /boot/config.txt
 
 rm -- "$0"
 
